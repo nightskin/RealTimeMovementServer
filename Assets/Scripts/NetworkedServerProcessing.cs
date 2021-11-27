@@ -29,6 +29,12 @@ static public class NetworkedServerProcessing
         networkedServer.SendMessageToClient(msg, clientConnectionID);
     }
 
+    static public void SendMessageToClientWithSimulatedLatency(string msg, int clientConnectionID)
+    {
+        networkedServer.SendMessageToClientWithSimulatedLatency(msg, clientConnectionID);
+    }
+
+    
     #endregion
 
     #region Connection Events

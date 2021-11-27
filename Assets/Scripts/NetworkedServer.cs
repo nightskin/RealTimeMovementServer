@@ -14,6 +14,8 @@ public class NetworkedServer : MonoBehaviour
     int hostID;
     int socketPort = 9003;
 
+    LinkedList<MsgToSendWithLatency> msgsToSendWithLatency;
+
     void Start()
     {
         if (NetworkedServerProcessing.GetNetworkedServer() == null)
@@ -26,6 +28,8 @@ public class NetworkedServer : MonoBehaviour
             unreliableChannelID = config.AddChannel(QosType.Unreliable);
             HostTopology topology = new HostTopology(config, maxConnections);
             hostID = NetworkTransport.AddHost(topology, socketPort, null);
+
+            msgsToSendWithLatency = new LinkedList<MsgToSendWithLatency>();
         }
         else
         {
@@ -61,6 +65,33 @@ public class NetworkedServer : MonoBehaviour
                 break;
         }
 
+        #region Simulated Latency
+
+        LinkedList<MsgToSendWithLatency> processMe = null;
+        foreach(MsgToSendWithLatency m in msgsToSendWithLatency)
+        {
+            m.latency -= Time.deltaTime;
+
+            if(m.latency <= 0)
+            {
+                if(processMe == null)
+                    processMe = new LinkedList<MsgToSendWithLatency>();
+                
+                processMe.AddLast(m);
+            }
+        }
+
+        if(processMe != null)
+        {
+            foreach(MsgToSendWithLatency m in processMe)
+            {
+                msgsToSendWithLatency.Remove(m);
+                SendMessageToClient(m.msg, m.id);
+            }
+        }
+
+        #endregion
+
     }
     public void SendMessageToClient(string msg, int id)
     {
@@ -69,4 +100,25 @@ public class NetworkedServer : MonoBehaviour
         NetworkTransport.Send(hostID, id, reliableChannelID, buffer, msg.Length * sizeof(char), out error);
     }
 
+    public void SendMessageToClientWithSimulatedLatency(string msg, int id)
+    {
+        msgsToSendWithLatency.AddLast(new MsgToSendWithLatency(msg, id));
+    }
+
 }
+
+class MsgToSendWithLatency
+{
+    public string msg;
+    public int id;
+    const float LatencySimulationTotal = 0.2f;
+    public float latency = LatencySimulationTotal;
+
+    public MsgToSendWithLatency(string Msg, int ID)
+    {
+        msg = Msg;
+        id = ID;
+    }
+
+}
+
