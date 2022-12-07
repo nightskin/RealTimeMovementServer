@@ -14,6 +14,7 @@ public class NetworkedServer : MonoBehaviour
     int hostID;
     int socketPort = 9003;
 
+
     LinkedList<MsgToSendWithLatency> msgsToSendWithLatency;
 
     void Start()

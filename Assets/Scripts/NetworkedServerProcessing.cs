@@ -5,25 +5,48 @@ using UnityEngine;
 static public class NetworkedServerProcessing
 {
 
+
     #region Send and Receive Data Functions
     static public void ReceivedMessageFromClient(string msg, int clientConnectionID)
     {
         Debug.Log("msg received = " + msg + ".  connection id = " + clientConnectionID);
 
-        string[] csv = msg.Split(',');
-        int signifier = int.Parse(csv[0]);
-
-        if (signifier == ClientToServerSignifiers.asd)
+        string[] input = msg.Split(',');
+        if (input[0] == "A")
         {
-
+            User user = gameLogic.GetUser(clientConnectionID);
+            user.pos.x -= gameLogic.speed * Time.deltaTime;
+            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
         }
-        // else if (signifier == ClientToServerSignifiers.asd)
-        // {
+        else if(input[0] == "D")
+        {
+            User user = gameLogic.GetUser(clientConnectionID);
+            user.pos.x += gameLogic.speed * Time.deltaTime;
+            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+        }
+        else if (input[0] == "W")
+        {
+            User user = gameLogic.GetUser(clientConnectionID);
+            user.pos.y += gameLogic.speed * Time.deltaTime;
+            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+        }
+        else if (input[0] == "S")
+        {
+            User user = gameLogic.GetUser(clientConnectionID);
+            user.pos.y -= gameLogic.speed * Time.deltaTime;
+            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+        }
 
-        // }
-
-        //gameLogic.DoSomething();
     }
+
+    public static void SendMessageToClients(string msg)
+    {
+        for(int i = 0; i < gameLogic.users.Count; i++)
+        {
+            SendMessageToClient(msg, gameLogic.users[i].id);
+        }
+    }
+
     static public void SendMessageToClient(string msg, int clientConnectionID)
     {
         networkedServer.SendMessageToClient(msg, clientConnectionID);
@@ -41,7 +64,10 @@ static public class NetworkedServerProcessing
 
     static public void ConnectionEvent(int clientConnectionID)
     {
-        Debug.Log("New Connection, ID == " + clientConnectionID);
+        User user = new User();
+        user.id = clientConnectionID;
+        user.pos = Vector3.zero;
+        gameLogic.users.Add(user);
     }
     static public void DisconnectionEvent(int clientConnectionID)
     {
