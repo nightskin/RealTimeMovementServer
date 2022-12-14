@@ -9,37 +9,72 @@ static public class NetworkedServerProcessing
     #region Send and Receive Data Functions
     static public void ReceivedMessageFromClient(string msg, int clientConnectionID)
     {
-        Debug.Log("msg received = " + msg + ".  connection id = " + clientConnectionID);
-
         string[] input = msg.Split(',');
         if (input[0] == "A")
         {
             User user = gameLogic.GetUser(clientConnectionID);
             user.pos.x -= gameLogic.speed * Time.deltaTime;
-            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+            string cmd = "Update,";
+            for(int i = 0; i < gameLogic.users.Count; i++)
+            {
+                cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
+            }
+            Debug.Log(cmd);
+            SendMessageToClients(cmd);
         }
         else if(input[0] == "D")
         {
             User user = gameLogic.GetUser(clientConnectionID);
             user.pos.x += gameLogic.speed * Time.deltaTime;
-            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+            string cmd = "Update,";
+            for (int i = 0; i < gameLogic.users.Count; i++)
+            {
+                cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
+            }
+            Debug.Log(cmd);
+            SendMessageToClients(cmd);
         }
         else if (input[0] == "W")
         {
             User user = gameLogic.GetUser(clientConnectionID);
             user.pos.y += gameLogic.speed * Time.deltaTime;
-            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+            string cmd = "Update,";
+            for (int i = 0; i < gameLogic.users.Count; i++)
+            {
+                cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
+            }
+            Debug.Log(cmd);
+            SendMessageToClients(cmd);
         }
         else if (input[0] == "S")
         {
             User user = gameLogic.GetUser(clientConnectionID);
             user.pos.y -= gameLogic.speed * Time.deltaTime;
-            SendMessageToClients("Update," + user.pos.x + "," + user.pos.y);
+            string cmd = "Update,";
+            for (int i = 0; i < gameLogic.users.Count; i++)
+            {
+                cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
+            }
+            Debug.Log(cmd);
+            SendMessageToClients(cmd);
         }
 
     }
 
-    public static void SendMessageToClients(string msg)
+
+    static public void SendMessageToClientsExcept(string msg, int exception)
+    {
+        for (int i = 0; i < gameLogic.users.Count; i++)
+        {
+            if(gameLogic.users[i].id != exception)
+            {
+                SendMessageToClient(msg, gameLogic.users[i].id);
+            }
+
+        }
+    }
+
+    static public void SendMessageToClients(string msg)
     {
         for(int i = 0; i < gameLogic.users.Count; i++)
         {
@@ -68,10 +103,18 @@ static public class NetworkedServerProcessing
         user.id = clientConnectionID;
         user.pos = Vector3.zero;
         gameLogic.users.Add(user);
+        string ids = string.Empty;
+        for(int i = 0; i < gameLogic.users.Count; i++)
+        {
+            ids += gameLogic.users[i].id + ",";
+        }
+        SendMessageToClients("Connect," + ids);
     }
     static public void DisconnectionEvent(int clientConnectionID)
     {
-        Debug.Log("New Disconnection, ID == " + clientConnectionID);
+        User user = gameLogic.GetUser(clientConnectionID);
+        gameLogic.users.Remove(user);
+        SendMessageToClients("Disconnect," + clientConnectionID);
     }
 
     #endregion
