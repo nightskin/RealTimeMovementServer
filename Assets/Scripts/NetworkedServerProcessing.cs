@@ -19,7 +19,6 @@ static public class NetworkedServerProcessing
             {
                 cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
             }
-            Debug.Log(cmd);
             SendMessageToClients(cmd);
         }
         else if(input[0] == "D")
@@ -31,7 +30,6 @@ static public class NetworkedServerProcessing
             {
                 cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
             }
-            Debug.Log(cmd);
             SendMessageToClients(cmd);
         }
         else if (input[0] == "W")
@@ -43,7 +41,6 @@ static public class NetworkedServerProcessing
             {
                 cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
             }
-            Debug.Log(cmd);
             SendMessageToClients(cmd);
         }
         else if (input[0] == "S")
@@ -55,7 +52,6 @@ static public class NetworkedServerProcessing
             {
                 cmd += gameLogic.users[i].id.ToString() + "," + gameLogic.users[i].pos.x.ToString() + "," + gameLogic.users[i].pos.y.ToString() + ",";
             }
-            Debug.Log(cmd);
             SendMessageToClients(cmd);
         }
 
